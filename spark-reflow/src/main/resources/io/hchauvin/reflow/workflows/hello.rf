@@ -1,0 +1,7 @@
+param (
+    world string
+)
+
+val Main = exec(image := "ubuntu", mem := 500 * MiB) (out file) {"
+	echo hello {{world}} >>{{out}}
+"}

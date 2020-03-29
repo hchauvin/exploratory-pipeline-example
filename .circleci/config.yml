@@ -1,0 +1,19 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: hchauvin/spark-r-ci
+    steps:
+      - checkout
+      - restore_cache:
+          key: sbt-cache
+      - run:
+          name: Test
+          # Do not test Reflow code as this would necessitate using some AWS resources.
+          command: sbt "; assembly; project spark-r; test; project bioinformatics; test"
+      - save_cache:
+          key: sbt-cache
+          paths:
+            - "~/.ivy2/cache"
+            - "~/.sbt"
+            - "~/.m2"

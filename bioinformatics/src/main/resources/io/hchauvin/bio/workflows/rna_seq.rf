@@ -1,0 +1,80 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2020 Hadrien Chauvin
+
+// rna_seq is a workflow to extract abundance info (feature count) of RNA sequences from
+// the Sequence Read Archive (SRA, NCBI) given a reference genome.
+//
+// The reference genome should come from Ensembl (ftp://ftp.ensembl.org/pub/release-99).
+// Alignment then feature counting is done through a combination of hisat2, samtools,
+// and stringtie.
+//
+// No quality control is performed in this simplified workflow.
+//
+// The following files are produced in the `outputPrefix` folder:
+// - `abundance.txt`: Abundance / feature count.  The format is given by
+// [[io.hchauvin.bio.Stringtie.abundanceSchema]].
+
+param (
+    // sraAcc is the accession number of the SRA run.
+    sraAcc string
+
+    // referenceGenomeURL is the URL to the FASTA (.fa) file containing the reference genome.
+    referenceGenomeURL string
+
+    // outputPrefix is the output prefix for all the files that are produced
+    // by this workflow.  This string must ends with '/'.
+    outputPrefix string
+)
+
+// files is the "files" built-in module.
+val files = make("$/files")
+
+// biotools is the reference to the image containing the various bioinformatics tools.
+val biotools = "hchauvin/biods-tools@sha256:025836150cffbd246e8536271881f2b9e6470cd7af4d17ec02203a1cc00d94cd"
+
+// curlGzFile extracts a gzipped file from an FTP.
+func curlGzFile(url string) =
+    exec(image := biotools, mem := 500 * MiB, cpu := 1) (out file) {"
+        curl -L {{url}} | gunzip -c > {{out}}
+    "}
+
+// index creates the hisat2 index from a reference genome.
+func index(referenceGenome file) =
+    exec(image := biotools, mem := 500 * MiB, cpu := 1, disk := 10 * GiB) (out dir) {"
+        /tools/hisat2/hisat2-build {{referenceGenome}} {{out}}/index
+    "}
+
+// stringtie applies the stringtie feature counting tool to a BAM file sorted and
+// indexed by `samtools`.
+func stringtie(sortedBam file) =
+    exec(image := biotools, mem := 500, cpu := 4, disk := 10 * GiB) (out file, abund file) {"
+        stringtie {{sortedBam}} -o {{out}} -p 4 -A {{abund}}
+    "}
+
+val Main = {
+    referenceGenome := curlGzFile(referenceGenomeURL)
+    referenceGenomeIndex := index(referenceGenome)
+
+    hisat2Threads := 4
+    bam := exec(image := biotools, mem := 500, cpu := hisat2Threads, disk := 10 * GiB) (out file) {"
+        /tools/hisat2/hisat2 \
+            -x {{referenceGenomeIndex}}/index \
+            --sra-acc {{sraAcc}} \
+            --threads {{hisat2Threads}} --time \
+            --met 10 --met-stderr \
+            --downstream-transcriptome-assembly \
+            --new-summary \
+            --summary-file summary.txt \
+          | samtools view -bS -F 4 -F 256 - > {{out}}
+    "}
+
+    samtoolsThreads := 2
+    sortedBam := exec(image := biotools, mem := 500, cpu := samtoolsThreads, disk := 10 * GiB) (out file) {"
+        samtools sort {{bam}} -@ {{samtoolsThreads}} -O bam -o {{out}}
+        samtools index {{out}}
+    "}
+
+    val (_, abundance) = stringtie(sortedBam)
+
+    files.Copy(abundance, outputPrefix + "abundance.txt")
+}
