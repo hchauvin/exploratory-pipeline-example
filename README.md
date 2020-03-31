@@ -50,3 +50,5 @@ sbt scalafmtAll
 ## License
 
 `exploratory-pipeline-example` is licensed under [The MIT License](./LICENSE).
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fhchauvin%2Fexploratory-pipeline-example.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fhchauvin%2Fexploratory-pipeline-example?ref=badge_large)
