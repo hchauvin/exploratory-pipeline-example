@@ -1,6 +1,7 @@
 # Bioinformatics workflows with Spark and Reflow: an example
 
 [![CircleCI](https://circleci.com/gh/hchauvin/exploratory-pipeline-example/tree/master.svg?style=svg)](https://circleci.com/gh/hchauvin/exploratory-pipeline-example/tree/master) [![scala: 2.12](https://img.shields.io/badge/scala-2.12-red.svg)](https://opensource.org/licenses/MIT) [![spark: 3.0](https://img.shields.io/badge/spark-3.0-orange.svg)](https://opensource.org/licenses/MIT) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fhchauvin%2Fexploratory-pipeline-example.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fhchauvin%2Fexploratory-pipeline-example?ref=badge_shield)
 
 This project showcases a simple bioinformatics workflow.  The end product is a
 heatmap of normalized gene expressions across related samples.  The workflow
@@ -50,3 +51,5 @@ sbt scalafmtAll
 ## License
 
 `exploratory-pipeline-example` is licensed under [The MIT License](./LICENSE).
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fhchauvin%2Fexploratory-pipeline-example.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fhchauvin%2Fexploratory-pipeline-example?ref=badge_large)
