@@ -8,9 +8,11 @@ jobs:
       - restore_cache:
           key: sbt-cache
       - run:
+          name: Format check
+          command: ./make.py format_check
+      - run:
           name: Test
-          # Do not test Reflow code as this would necessitate using some AWS resources.
-          command: sbt "; assembly; project spark-r; test; project bioinformatics; test"
+          command: ./make.py test
       - save_cache:
           key: sbt-cache
           paths:

@@ -1,0 +1,16 @@
+# Configuration when Polynote is run in the Docker container.
+
+listen:
+  host: 0.0.0.0
+
+storage:
+  dir: /opt/notebooks
+  mounts:
+    examples:
+      dir: examples
+
+dependencies:
+  scala:
+    - file:///opt/app/lib/bioinformatics-assembly.jar
+    - file:///opt/app/lib/spark-r-assembly.jar
+    - file:///opt/app/lib/spark-reflow-assembly.jar
